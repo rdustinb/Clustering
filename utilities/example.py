@@ -4,13 +4,13 @@ from ST7735Control import ST7735Control
 mydisplay = ST7735Control()
 
 # Text to display...
-mydisplay.printText((  0,  0), "Pi4-0.local", (255,255,255))
+mydisplay.printText((  0,  0), "Node 0", (255,255,255))
 mydisplay.printText(( 80,  0), "Up", (0,255,0))
-mydisplay.printText((  0, 12), "Pi4-1.local", (255,255,255))
+mydisplay.printText((  0, 12), "Node 1", (255,255,255))
 mydisplay.printText(( 80, 12), "Up", (0,255,0))
-mydisplay.printText((  0, 24), "Pi4-2.local", (255,255,255))
+mydisplay.printText((  0, 24), "Node 2", (255,255,255))
 mydisplay.printText(( 80, 24), "Down", (0,0,255))
-mydisplay.printText((  0, 36), "Pi4-3.local", (255,255,255))
+mydisplay.printText((  0, 36), "Node 3", (255,255,255))
 mydisplay.printText(( 80, 36), "Up", (0,255,0))
 
 # Draw some colored rectangles...
