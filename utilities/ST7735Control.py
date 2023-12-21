@@ -1,12 +1,14 @@
-TESTMODE=True
-
-if not(TESTMODE):
+# Optional Libraries if running in TestMode
+try:
     import digitalio
     import board
-    from PIL import Image, ImageDraw, ImageFont
     from adafruit_rgb_display import st7735
-else:
-    from PIL import Image, ImageDraw, ImageFont
+except:
+    print("Some libraries weren't loaded.")
+    print("Please make sure to install digitalio, board, and adafruit_rgb_display if running this in non-test mode.")
+
+# Required Libraries for all modes
+from PIL import Image, ImageDraw, ImageFont
 
 BACKGROUND=(0,0,0)
 FOREGROUND=(255,255,255)
@@ -17,10 +19,12 @@ BAUDRATE=24000000
 ##########################################
 ### Class Stuff Down Here
 class ST7735Control:
-    def __init__(self):
+    def __init__(self, thisTestMode):
+        # When creating the object, define it in TestMode or not
+        self.TestMode = thisTestMode
         # Test mode will render a bitmap instead of trying to write to the display.
         # Useful for debugging graphics code.
-        if TESTMODE:
+        if self.TestMode:
             # Reverse the Width/Height if the display is rotated
             if ROTATION % 180 == 90:
                 self.height = 128
@@ -86,14 +90,15 @@ class ST7735Control:
         self.tft_bl.value = True
 
     def printText(self, originTuple, text, color):
-        # Draw some Text
-        if TESTMODE:
+        # Draw to local OS
+        if self.TestMode:
             self.draw.text(
                 originTuple,
                 text,
                 font=self.font,
                 fill=color[::-1],
             )
+        # Draw to TFT display over SPI
         else:
             self.draw.text(
                 originTuple,
@@ -107,27 +112,20 @@ class ST7735Control:
             The LCD Origin is in the top-left of the display when it is oriented in landscape mode.
         """
         if shape == "rectangle":
-            if TESTMODE:
+            # Draw to local OS
+            if self.TestMode:
                 # The Pixels color Tuple is (R,G,B)
                 self.draw.rectangle(size_tuple, fill=color_tuple[::-1])
+            # Draw to TFT display over SPI
             else:
                 # The TFT Library color Tuple is (B,G,R)
                 self.draw.rectangle(size_tuple, fill=color_tuple)
 
-            #if TESTMODE:
-            #    # Row Range...
-            #    for i in range(size_tuple[0],size_tuple[2]):
-            #        # Column Range...
-            #        for j in range(size_tuple[1],size_tuple[3]):
-            #            # The TFT Library color Tuple is (B,G,R), the testPixels color Tuple is (R,G,B)
-            #            self.pixels[i,j] = (color_tuple[2], color_tuple[1], color_tuple[0]);
-            #else:
-            #    # Start X, Start Y, End X, End Y
-            #    self.draw.rectangle(size_tuple, fill=color_tuple)
-
     def update(self):
-        if TESTMODE:
+        if self.TestMode:
+            # Draw to local OS
             self.image.show()
         else:
+            # Draw to TFT display over SPI
             self.disp.image(self.image)
 

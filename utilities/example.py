@@ -1,7 +1,7 @@
 from ST7735Control import ST7735Control 
 
 # Create a new control object
-mydisplay = ST7735Control()
+mydisplay = ST7735Control(thisTestMode=True)
 
 # Text to display...
 mydisplay.printText((  0,  0), "Node 0", (255,255,255))
