@@ -1,6 +1,9 @@
-import psutil
-import time
-import json
+try:
+    import psutil
+    import time
+    import json
+except:
+    print("There are libraries missing, please install psutil, time, and json.")
 
 SampleSeconds = 55
 

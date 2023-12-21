@@ -1,14 +1,21 @@
+import sys
+
 # Optional Libraries if running in TestMode
 try:
     import digitalio
     import board
     from adafruit_rgb_display import st7735
 except:
-    print("Some libraries weren't loaded.")
+    print("Some optional libraries weren't loaded.")
     print("Please make sure to install digitalio, board, and adafruit_rgb_display if running this in non-test mode.")
 
 # Required Libraries for all modes
-from PIL import Image, ImageDraw, ImageFont
+try:
+    from PIL import Image, ImageDraw, ImageFont
+except:
+    print("Some required librareis weren't loaded.")
+    print("Please make sure to install PIL.")
+    sys.exit()
 
 BACKGROUND=(0,0,0)
 FOREGROUND=(255,255,255)
