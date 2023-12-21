@@ -1,52 +1,75 @@
-import digitalio
-import board
-from PIL import Image, ImageDraw, ImageFont
-from adafruit_rgb_display import st7735
+TESTMODE=True
+
+if not(TESTMODE):
+    import digitalio
+    import board
+    from PIL import Image, ImageDraw, ImageFont
+    from adafruit_rgb_display import st7735
+else:
+    from PIL import Image, ImageDraw, ImageFont
 
 BACKGROUND=(0,0,0)
 FOREGROUND=(255,255,255)
-FONTSIZE = 10
-BAUDRATE = 24000000
+ROTATION=270
+FONTSIZE=10
+BAUDRATE=24000000
 
 ##########################################
 ### Class Stuff Down Here
 class ST7735Control:
     def __init__(self):
-        # Create a board object...
-        self.spi = board.SPI()
-        
-        # Display configuration for the 1.8" TFT Display
-        self.disp = st7735.ST7735R(
-            self.spi, 
-            rotation=270,
-            cs=digitalio.DigitalInOut(board.CE0),
-            dc=digitalio.DigitalInOut(board.D25),
-            rst=digitalio.DigitalInOut(board.D22),
-            baudrate=BAUDRATE,
-        )
-        
-        # Reverse the Width/Height if the display is rotated
-        if self.disp.rotation % 180 == 90:
-            self.height = self.disp.width
-            self.width = self.disp.height
+        # Test mode will render a bitmap instead of trying to write to the display.
+        # Useful for debugging graphics code.
+        if TESTMODE:
+            # Reverse the Width/Height if the display is rotated
+            if ROTATION % 180 == 90:
+                self.height = 128
+                self.width = 160
+            else:
+                self.height = 160
+                self.width = 128
+
+        # Only initialize the display if not in test mode
         else:
-            self.height = self.disp.height
-            self.width = self.disp.width
-        
+            # Create a board object...
+            self.spi = board.SPI()
+            
+            # Display configuration for the 1.8" TFT Display
+            self.disp = st7735.ST7735R(
+                self.spi, 
+                rotation=ROTATION,
+                cs=digitalio.DigitalInOut(board.CE0),
+                dc=digitalio.DigitalInOut(board.D25),
+                rst=digitalio.DigitalInOut(board.D22),
+                baudrate=BAUDRATE,
+            )
+            
+            # Reverse the Width/Height if the display is rotated
+            if ROTATION % 180 == 90:
+                self.height = self.disp.width
+                self.width = self.disp.height
+            else:
+                self.height = self.disp.height
+                self.width = self.disp.width
+            
+            # Enable the Backlight
+            self.enableBacklight()
+
         # Create a new image handle
         self.image = Image.new("RGB", (self.width, self.height))
+
+        # Get a Pixel Map Object
+        self.pixels = self.image.load()
         
         # Get the drawing object from the image handle
         self.draw = ImageDraw.Draw(self.image)
         
         # Load a Font
-        self.font = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", FONTSIZE)
+        self.font = ImageFont.truetype("SFNS.ttf", FONTSIZE)
 
         # Clear the Display
         self.clearDisplay()
 
-        # Enable the Backlight
-        self.enableBacklight()
     
     def getDimensions(self):
         return (self.width, self.height)
@@ -64,21 +87,47 @@ class ST7735Control:
 
     def printText(self, originTuple, text, color):
         # Draw some Text
-        self.draw.text(
-            originTuple,
-            text,
-            font=self.font,
-            fill=color,
-        )
+        if TESTMODE:
+            self.draw.text(
+                originTuple,
+                text,
+                font=self.font,
+                fill=color[::-1],
+            )
+        else:
+            self.draw.text(
+                originTuple,
+                text,
+                font=self.font,
+                fill=color,
+            )
 
     def drawShape(self, shape, size_tuple, color_tuple):
         """
             The LCD Origin is in the top-left of the display when it is oriented in landscape mode.
         """
         if shape == "rectangle":
-            # Start X, Start Y, End X, End Y
-            self.draw.rectangle(size_tuple, fill=color_tuple)
+            if TESTMODE:
+                # The Pixels color Tuple is (R,G,B)
+                self.draw.rectangle(size_tuple, fill=color_tuple[::-1])
+            else:
+                # The TFT Library color Tuple is (B,G,R)
+                self.draw.rectangle(size_tuple, fill=color_tuple)
+
+            #if TESTMODE:
+            #    # Row Range...
+            #    for i in range(size_tuple[0],size_tuple[2]):
+            #        # Column Range...
+            #        for j in range(size_tuple[1],size_tuple[3]):
+            #            # The TFT Library color Tuple is (B,G,R), the testPixels color Tuple is (R,G,B)
+            #            self.pixels[i,j] = (color_tuple[2], color_tuple[1], color_tuple[0]);
+            #else:
+            #    # Start X, Start Y, End X, End Y
+            #    self.draw.rectangle(size_tuple, fill=color_tuple)
 
     def update(self):
-        self.disp.image(self.image)
+        if TESTMODE:
+            self.image.show()
+        else:
+            self.disp.image(self.image)
 

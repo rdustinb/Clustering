@@ -15,7 +15,7 @@ mydisplay.printText(( 80, 36), "Up", (0,255,0))
 
 # Draw some colored rectangles...
 mydisplay.drawShape("rectangle", (10, 40, 20, 50), (0,0,255))
-mydisplay.drawShape("rectangle", (50, 50, 60, 60), (0,255,255))
+mydisplay.drawShape("rectangle", (50, 50, 60, 60), (0,255,0))
 mydisplay.drawShape("rectangle", (20, 60, 30, 70), (255,0,0))
 
 # Push it to the display...
