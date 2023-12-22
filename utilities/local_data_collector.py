@@ -8,6 +8,7 @@ except:
 data_file = "data.json"
 max_data_samples = 240 # Store 1 hour of samples
 
+########################################
 # Read in the JSON Data, or create a new dictionary to store...
 try:
     with open(data_file, "r") as json_data:
@@ -18,14 +19,16 @@ except FileNotFoundError:
 
 time.sleep(1)
 
+########################################
 # This kicks off every minute, and there are samples take in this script every 15 seconds
 for thisSample in range(4):
     # Fetch and append a Sample...
     data["cpu_samples"].append(psutil.cpu_percent())
-    data["mem_samples"].append(psutil.virtual_memory().available)
+    data["mem_samples"].append(psutil.virtual_memory().used)
     # Wait 15s, but not on the last sample
     if thisSample != 3: time.sleep(15)
 
+########################################
 # Get length of data arrays
 cpu_sample_length = len(data["cpu_samples"])
 mem_sample_length = len(data["mem_samples"])
@@ -44,6 +47,7 @@ if mem_sample_length > max_data_samples:
     del data["mem_samples"][:thisTrim]
     mem_sample_length = len(data["mem_samples"])
 
+########################################
 # Store the data
 with open(data_file, 'w+', encoding="utf-8") as fh:
     json.dump(data, fh, ensure_ascii=False, indent=2)
