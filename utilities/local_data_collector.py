@@ -32,21 +32,17 @@ mem_sample_length = len(data["mem_samples"])
 
 # Trim the CPU data if necessary...
 if cpu_sample_length > max_data_samples:
-    print("Length of CPU data is %d, trimming..."%(cpu_sample_length))
     thisTrim = cpu_sample_length - max_data_samples
     # Remove the oldest samples...
     del data["cpu_samples"][:thisTrim]
     cpu_sample_length = len(data["cpu_samples"])
-    print("Length of CPU data is now %d."%(cpu_sample_length))
 
 # Trim the Memory data if necessary...
 if mem_sample_length > max_data_samples:
-    print("Length of Memory data is %d, trimming..."%(mem_sample_length))
     thisTrim = mem_sample_length - max_data_samples
     # Remove the oldest samples...
     del data["mem_samples"][:thisTrim]
     mem_sample_length = len(data["mem_samples"])
-    print("Length of Memory data is now %d."%(mem_sample_length))
 
 # Store the data
 with open(data_file, 'w+', encoding="utf-8") as fh:
