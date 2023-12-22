@@ -96,37 +96,46 @@ class ST7735Control:
         # Enable the Backlight by Default...
         self.tft_bl.value = True
 
-    def printText(self, originTuple, text, color):
-        # Draw to local OS
+    def printText(self, originTuple, text, color_tuple):
+        # The Pixels color Tuple is (R,G,B)
+        # The TFT Library color Tuple is (B,G,R)
         if self.TestMode:
-            self.draw.text(
-                originTuple,
-                text,
-                font=self.font,
-                fill=color[::-1],
-            )
-        # Draw to TFT display over SPI
-        else:
-            self.draw.text(
-                originTuple,
-                text,
-                font=self.font,
-                fill=color,
-            )
+            color_tuple = color_tuple[::-1]
 
-    def drawShape(self, shape, size_tuple, color_tuple):
+        self.draw.text(
+            originTuple,
+            text,
+            font=self.font,
+            fill=color_tuple,
+        )
+
+    def drawShape(self, shape, size_tuple, color_tuple, data=None):
         """
             The LCD Origin is in the top-left of the display when it is oriented in landscape mode.
         """
+        # The Pixels color Tuple is (R,G,B)
+        # The TFT Library color Tuple is (B,G,R)
+        if self.TestMode:
+            color_tuple = color_tuple[::-1]
+
         if shape == "rectangle":
-            # Draw to local OS
-            if self.TestMode:
-                # The Pixels color Tuple is (R,G,B)
-                self.draw.rectangle(size_tuple, fill=color_tuple[::-1])
-            # Draw to TFT display over SPI
-            else:
-                # The TFT Library color Tuple is (B,G,R)
-                self.draw.rectangle(size_tuple, fill=color_tuple)
+            self.draw.rectangle(size_tuple, fill=color_tuple)
+        elif shape == "line bezier":
+            x_offset = size_tuple[0]
+            for thisData in data:
+                # Use x-start as the first data point coordinate, which is size_tuple[0]
+                self.pixels[x_offset, thisData] = color_tuple
+                # Move the offset
+                x_offset += 1
+        elif shape == "filled bezier":
+            x_offset = size_tuple[0]
+            y_offset = size_tuple[3]
+            for thisData in data:
+                line_tuple = (x_offset, y_offset, x_offset, thisData)
+                # Use x-start as the first data point coordinate, which is size_tuple[0]
+                self.draw.line(line_tuple, fill=color_tuple)
+                # Move the offset
+                x_offset += 1
 
     def update(self):
         if self.TestMode:
