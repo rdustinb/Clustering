@@ -39,23 +39,26 @@ def lineGraph(mydisplay, data, scaleMax, graphTuple, justify = "Top",
     mydisplay.drawShape(graph_type, graphTuple, color_tuple, data)
 
 def graph_data():
+    thisFontSize = 12
+
     # Create a new control object
-    mydisplay = ST7735Control(thisTestMode=True)
+    mydisplay = ST7735Control(thisTestMode=True, thisFontSize=thisFontSize)
         
     for thisCluster in range(4):
         path = os.path.expanduser("~/data/stats_data_pi4-%d.local.json"%(thisCluster))
 
-        graph_height = 18
-        print_y_offset = graph_height*thisCluster + 12*thisCluster + thisCluster
-        graph_y_offset = graph_height*thisCluster + 12*(thisCluster + 1) + thisCluster
+        graph_height = 16
+        print_y_offset = graph_height*thisCluster + (thisFontSize+3)*thisCluster
+        graph_y_offset = graph_height*thisCluster + (thisFontSize+3)*(thisCluster + 1)
         
         # Read in the JSON Data
         with open(path, "r") as json_data:
             data = json.load(json_data)
 
         # Print info
-        mydisplay.printText(( pad, print_y_offset), "Node-%d.local"%(thisCluster), (255,255,255))
-        mydisplay.printText(( 80,  print_y_offset), "Up", (0,255,0))
+        mydisplay.printText(( pad, print_y_offset), "Node-%d.local"%(thisCluster), (170,170,170))
+        mydisplay.printText(( 105, print_y_offset), "%.1f"%(data["cpu_temp"]), (60,60,170))
+        mydisplay.printText(( 140, print_y_offset), "Up", (60,170,60))
 
         # Draw the Graph Frame
         #graphFrame(mydisplay, (0,graph_y_offset), graph_height)
@@ -65,14 +68,28 @@ def graph_data():
             data_cpu_samples_trimmed = data["cpu_samples"][(len(data["cpu_samples"]) - (150-2)):]
         else:
             data_cpu_samples_trimmed = data["cpu_samples"]
-        lineGraph(mydisplay, data_cpu_samples_trimmed, 100, (5, graph_y_offset, 155, graph_y_offset+graph_height), "Bottom", "filled bezier", (128,128,255))
+        lineGraph(mydisplay,
+            data_cpu_samples_trimmed, 
+            100, 
+            (5, graph_y_offset, 155, graph_y_offset+graph_height),
+            "Bottom",
+            "filled bezier",
+            (35,115,170)
+        )
         
         # Overlay the Memory Utilizatin
         if len(data["mem_samples"]) > 150-2:
             data_mem_samples_trimmed = data["mem_samples"][(len(data["mem_samples"]) - (150-2)):]
         else:
             data_mem_samples_trimmed = data["mem_samples"]
-        lineGraph(mydisplay, data_mem_samples_trimmed, data["mem_total"], (5, graph_y_offset, 155, graph_y_offset+graph_height), "Bottom", "line bezier", (255,128,128))
+        lineGraph(mydisplay, 
+            data_mem_samples_trimmed,
+            data["mem_total"],
+            (5, graph_y_offset, 155, graph_y_offset+graph_height),
+            "Bottom",
+            "line bezier",
+            (170,45,35)
+        )
         
     # Push it to the display...
     mydisplay.update()

@@ -20,15 +20,16 @@ except:
 BACKGROUND=(0,0,0)
 FOREGROUND=(255,255,255)
 ROTATION=270
-FONTSIZE=10
 BAUDRATE=24000000
 
 ##########################################
 ### Class Stuff Down Here
 class ST7735Control:
-    def __init__(self, thisTestMode):
+    def __init__(self, thisTestMode, thisFontSize):
         # When creating the object, define it in TestMode or not
         self.TestMode = thisTestMode
+        # Setup the font size
+        self.FontSize = thisFontSize
         # Test mode will render a bitmap instead of trying to write to the display.
         # Useful for debugging graphics code.
         if self.TestMode:
@@ -76,7 +77,7 @@ class ST7735Control:
         self.draw = ImageDraw.Draw(self.image)
         
         # Load a Font
-        self.font = ImageFont.truetype("SFNS.ttf", FONTSIZE)
+        self.font = ImageFont.truetype("SFNS.ttf", self.FontSize)
 
         # Clear the Display
         self.clearDisplay()
