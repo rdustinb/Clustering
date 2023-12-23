@@ -3,6 +3,7 @@ try:
     import time
     import json
     from gpiozero import CPUTemperature
+    from datetime import datetime
 except:
     print("There are libraries missing, please install psutil, time, and json.")
 
@@ -16,9 +17,13 @@ try:
          data = json.load(json_data)
 except FileNotFoundError:
     # Create an empty data dictionary
-    data = {"cpu_temp": 0, "cpu_count": psutil.cpu_count(), "mem_total": psutil.virtual_memory().total, "cpu_samples": list(), "mem_samples": list()}
+    data = {"update_time": 0, "cpu_temp": 0, "cpu_count": psutil.cpu_count(), "mem_total": psutil.virtual_memory().total, "cpu_samples": list(), "mem_samples": list()}
 
 time.sleep(1)
+
+########################################
+# Store the current time to track the current data samples
+data["update_time"] = datetime.now()
 
 ########################################
 # This kicks off every minute, and there are samples take in this script every 15 seconds
