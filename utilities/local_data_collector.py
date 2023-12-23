@@ -23,7 +23,7 @@ time.sleep(1)
 
 ########################################
 # Store the current time to track the current data samples
-data["update_time"] = datetime.now()
+data["update_time"] = datetime.now().isoformat()
 
 ########################################
 # This kicks off every minute, and there are samples take in this script every 15 seconds
