@@ -2,6 +2,7 @@ try:
     import psutil
     import time
     import json
+    from gpiozero import CPUTemperature
 except:
     print("There are libraries missing, please install psutil, time, and json.")
 
@@ -15,7 +16,7 @@ try:
          data = json.load(json_data)
 except FileNotFoundError:
     # Create an empty data dictionary
-    data = {"cpu_count": psutil.cpu_count(), "mem_total": psutil.virtual_memory().total, "cpu_samples": list(), "mem_samples": list()}
+    data = {"cpu_temp": 0, "cpu_count": psutil.cpu_count(), "mem_total": psutil.virtual_memory().total, "cpu_samples": list(), "mem_samples": list()}
 
 time.sleep(1)
 
@@ -27,6 +28,15 @@ for thisSample in range(4):
     data["mem_samples"].append(psutil.virtual_memory().used)
     # Wait 15s, but not on the last sample
     if thisSample != 3: time.sleep(15)
+
+########################################
+# Get the current CPU Temperature
+try:
+    cpu_temp = CPUTemperature()
+    data["cpu_temp"] = cpu_temp.temperature
+except:
+    # If this is running elsewhere or doesn't have the proper packages installed, just log a really high number
+    data["cpu_temp"] = 99.999
 
 ########################################
 # Get length of data arrays
