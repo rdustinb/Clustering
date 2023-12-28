@@ -77,7 +77,12 @@ class ST7735Control:
         self.draw = ImageDraw.Draw(self.image)
         
         # Load a Font
-        self.font = ImageFont.truetype("SFNS.ttf", self.FontSize)
+        # TODO fix font loading...
+        if self.TestMode:
+            # Running test mode on a Mac....yes I know, not a good idea to hard code this...
+            self.font = ImageFont.truetype("SFNS.ttf", self.FontSize)
+        else:
+            self.font = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", self.FontSize)
 
         # Clear the Display
         self.clearDisplay()
