@@ -2,11 +2,12 @@ from ST7735Control import ST7735Control
 import json
 import sys
 import os
+from datetime import datetime
+from datetime import timedelta
 
 pad = 5
 
 # TFT is 160 x 128
-
 def graphFrame(mydisplay, start_tuple, height, border = True):
     """
     """
@@ -41,24 +42,56 @@ def lineGraph(mydisplay, data, scaleMax, graphTuple, justify = "Top",
 def graph_data():
     thisFontSize = 12
 
+    offlineColor = (64,64,64)
+
     # Create a new control object
-    mydisplay = ST7735Control(thisTestMode=True, thisFontSize=thisFontSize)
+    try:
+        # With no arguments, default to hardware mode
+        if len(sys.argv) > 1 and sys.argv[1] == "test":
+            mydisplay = ST7735Control(thisTestMode=True, thisFontSize=thisFontSize)
+        else:
+            mydisplay = ST7735Control(thisTestMode=False, thisFontSize=thisFontSize)
+    except:
+        # Fail to test mode...
+        mydisplay = ST7735Control(thisTestMode=True, thisFontSize=thisFontSize)
         
     for thisCluster in range(4):
         path = os.path.expanduser("~/data/stats_data_pi4-%d.local.json"%(thisCluster))
 
-        graph_height = 16
-        print_y_offset = graph_height*thisCluster + (thisFontSize+3)*thisCluster
-        graph_y_offset = graph_height*thisCluster + (thisFontSize+3)*(thisCluster + 1)
+        graph_height = 12
+        print_y_offset = 5*thisCluster + graph_height*thisCluster + (thisFontSize+3)*thisCluster
+        graph_y_offset = 5*thisCluster + graph_height*thisCluster + (thisFontSize+3)*(thisCluster + 1)
         
         # Read in the JSON Data
         with open(path, "r") as json_data:
             data = json.load(json_data)
 
+        # Check the last sample update time, if it is older than 15 minutes, the node is considered offline...
+        offline_limit_time = datetime.fromisoformat(data["update_time"]) + timedelta(minutes=15)
+
+        if datetime.now() > offline_limit_time:
+            node_offline = True
+            node_name_color = offlineColor
+            node_temp_color = offlineColor
+            node_state_color = (60,60,170)
+            node_state = "Down"
+            node_state_x = 125
+            node_cpu_color = offlineColor
+            node_mem_color = offlineColor
+        else:
+            node_offline = False
+            node_name_color = (170,170,170)
+            node_temp_color = (190,40,190)
+            node_state_color = (60,170,60)
+            node_state = "Up"
+            node_state_x = 140
+            node_cpu_color = (35,115,170)
+            node_mem_color = (170,45,35)
+
         # Print info
-        mydisplay.printText(( pad, print_y_offset), "Node-%d.local"%(thisCluster), (170,170,170))
-        mydisplay.printText(( 105, print_y_offset), "%.1f"%(data["cpu_temp"]), (60,60,170))
-        mydisplay.printText(( 140, print_y_offset), "Up", (60,170,60))
+        mydisplay.printText(( pad, print_y_offset), "Node-%d.local"%(thisCluster), node_name_color)
+        mydisplay.printText((  90, print_y_offset), "%.1f"%(data["cpu_temp"]), node_temp_color)
+        mydisplay.printText(( node_state_x, print_y_offset), "%s"%(node_state), node_state_color)
 
         # Draw the Graph Frame
         #graphFrame(mydisplay, (0,graph_y_offset), graph_height)
@@ -74,7 +107,7 @@ def graph_data():
             (5, graph_y_offset, 155, graph_y_offset+graph_height),
             "Bottom",
             "filled bezier",
-            (35,115,170)
+            node_cpu_color
         )
         
         # Overlay the Memory Utilizatin
@@ -88,7 +121,7 @@ def graph_data():
             (5, graph_y_offset, 155, graph_y_offset+graph_height),
             "Bottom",
             "line bezier",
-            (170,45,35)
+            node_mem_color
         )
         
     # Push it to the display...
