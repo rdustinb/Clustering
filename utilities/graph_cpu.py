@@ -4,6 +4,7 @@ import sys
 import os
 from datetime import datetime
 from datetime import timedelta
+import config
 
 pad = 5
 
@@ -56,7 +57,7 @@ def graph_data():
         mydisplay = ST7735Control(thisTestMode=True, thisFontSize=thisFontSize)
         
     for thisCluster in range(4):
-        path = os.path.expanduser("~/data/stats_data_pi4-%d.local.json"%(thisCluster))
+        path = os.path.expanduser("~/data/stats_data_%s-%d.local.json"%(config.basename, thisCluster))
 
         graph_height = 12
         print_y_offset = 5*thisCluster + graph_height*thisCluster + (thisFontSize+3)*thisCluster

@@ -1,0 +1,9 @@
+# Define the basename of the clustered devices. The graphing tool is expecting the names to have -n following the
+# basename, such as:
+#
+# device-0
+# device-1
+# device-2
+# ...
+
+basename="device"
