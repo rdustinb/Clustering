@@ -1,5 +1,7 @@
 import sys
 
+optLibsMissing = False
+
 # Optional Libraries if running in TestMode
 try:
     import digitalio
@@ -8,6 +10,7 @@ try:
 except:
     print("Some optional libraries weren't loaded.")
     print("Please make sure to install digitalio, board, and adafruit_rgb_display if running this in non-test mode.")
+    optLibsMissing = True
 
 # Required Libraries for all modes
 try:
@@ -30,6 +33,10 @@ class ST7735Control:
         self.TestMode = thisTestMode
         # Setup the font size
         self.FontSize = thisFontSize
+        # Verify optional libraries aren't missing when NOT in testmode
+        if not(self.TestMode) and optLibsMissing:
+            print("Optional libraries are mandatory when not in TestMode. Exiting.")
+            sys.exit()
         # Test mode will render a bitmap instead of trying to write to the display.
         # Useful for debugging graphics code.
         if self.TestMode:
