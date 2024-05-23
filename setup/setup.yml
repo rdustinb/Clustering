@@ -1,0 +1,14 @@
+# Author: Dustin Brothers
+# Description:
+#   Playbook used to setup my clustered devices.
+---
+- hosts: all
+  tasks:
+  - name: Install Clustering repo...
+    git:
+      repo: https://github.com/rdustinb/Clustering.git
+      dest: ~/python_dev_env/Clustering
+  - name: Create a cronjob to collect system stats...
+    cron:
+      name: "System Stats"
+      job: "source /home/$( whoami )/python_dev_env/bin/activate ; python3 /home/$( whoami )/python_dev_env/Clustering/utilities/local_data_collector.py ; deactivate"
