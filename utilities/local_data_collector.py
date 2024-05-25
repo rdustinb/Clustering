@@ -1,11 +1,14 @@
+import sys
+import time
+import json
+
 try:
     import psutil
-    import time
-    import json
     from gpiozero import CPUTemperature
     from datetime import datetime
 except:
-    print("There are libraries missing, please install psutil, time, and json.")
+    print("There are libraries missing, please install psutil, gpiozero, and datetime.")
+    sys.exit()
 
 data_file = "data.json"
 max_data_samples = 240 # Store 1 hour of samples
